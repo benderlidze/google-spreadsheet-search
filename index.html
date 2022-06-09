@@ -18,26 +18,54 @@
     }
 
     #searchTextField {
-        position: absolute;
-        top: 110px;
         font-size: 1.1em;
-        z-index: 1000;
-        left: 10px;
-        padding: 5px;
+        padding: 10px;
+        margin: 10px
     }
 
     .addr {
         margin: 10px 0px;
     }
+
+    .main {
+        background-color: rgb(211, 211, 211);
+    }
+
+    .location {
+        display: block;
+        background-image: url(https://upload.wikimedia.org/wikipedia/commons/f/f8/Ic_my_location_48px.svg);
+        background-position: center;
+        background-repeat: no-repeat;
+        width: 42px;
+        height: 42px;
+        border: 1px solid gray;
+        cursor: pointer;
+    }
+
+    .container {
+        display: flex;
+        align-items: center;
+        align-content: center;
+    }
 </style>
 
 <body>
 
-    <input id="searchTextField" type="text" size="25">
-    <div id="map" style="width: 100%; height: 100%;"></div>
+
+    <div class="main">
+        <div class="container">
+            <input id="searchTextField" type="text" size="25">
+            <div id="userLocation" class="location"></div>
+        </div>
+        <div id="map" style="width: 100%; height: 500px;"></div>
+    </div>
+
+
 
     <script type="text/javascript">
         const mainData = []
+        const userLocation = document.getElementById("userLocation");
+
         function initMap() {
 
             map = new google.maps.Map(document.getElementById("map"), {
@@ -56,8 +84,6 @@
                     console.log('i', i);
                     mainData.push(...i)
 
-                    // Create an array of alphabetical characters used to label the markers.
-                    // Add some markers to the map.
                     const markers = mainData.map((data, i) => {
 
                         const text = `
@@ -94,9 +120,6 @@
                         });
                         return marker;
                     });
-
-                    // Add a marker clusterer to manage the markers.
-                    //const markerCluster = new markerClusterer.MarkerClusterer({ map, markers });
 
                     var wdmRender = {
                         render: function ({ count, position }, stats) {
@@ -160,131 +183,27 @@
 
             });
 
+        }
 
+        userLocation.addEventListener("click", () => {
+            getUserposition()
+        })
+
+        function getUserposition() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    const lat = position.coords.latitude; // ADDED THIS
+                    const lng = position.coords.longitude; // ADDED THIS
+                    map.setCenter({ lat, lng });
+                    map.setZoom(10);
+                }, function () {
+                    handleLocationError(true, infoWindow, map.getCenter());
+                });
+            }
         }
 
         window.initMap = initMap;
 
-        /*
-        function initMap() {
-
-            map = new google.maps.Map(document.getElementById('map'), {
-                zoom: mapZoom,
-                center: mapCenter,
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-            });
-            var infowindow = new google.maps.InfoWindow();
-            var marker, i;
-
-            const geocoder = new google.maps.Geocoder()
-
-            d3.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTHAm_8RBWo_DTpjYUEhQGSY_HTl6EOdI9sp2ZOB8yjTAwbGlmCSrpM_QHdmVzdF1tx_enZ0kdixqaf/pub?output=csv")
-                .then(i => {
-                    console.log('i', i);
-                    mainData.push(...i)
-                    mainData.map(marker => {
-
-                    })
-                })
-
-
-            function addMarker(pin, color) {
-                const icon = {
-                    url: "icons/sun.png", // url
-                    scaledSize: new google.maps.Size(50, 50), // size
-                };
-                const marker = new google.maps.Marker({
-                    position: { lng: +pin.lng, lat: +pin.lat },
-                    map: map,
-                    //options: pin,
-                    icon: icon,
-                });
-
-                marker.addListener('mouseover', function () { });
-                marker.addListener('mouseout', function () { });
-
-                marker.addListener("click", e => {
-                    const content = `
-                    <div>
-                        <h3> 
-                        ${pin['Address']}, 
-                        ${pin['City']}, 
-                        ${pin['Panel Location']}</h3>
-                    </div>`
-                    infowindow.setContent(content);
-                    infowindow.open(map, marker);
-                });
-
-                allMarkers.push(marker);
-            }
-
-            const autocomplete = new google.maps.places.Autocomplete(input);
-            google.maps.event.addListener(autocomplete, 'place_changed', function (e) {
-                var place = autocomplete.getPlace();
-                const loc = place.geometry.location;
-                console.log('place', loc);
-                map.setCenter(place.geometry.location);
-
-                allMarkers.forEach(marker => marker.setMap(null)) // clear prev markers
-
-                const image =
-                    "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
-                searchMarker = new google.maps.Marker({
-                    position: loc,
-                    map,
-                    // icon: image,
-                });
-
-                const points = mainData.filter(point => {
-                    return point.lat && point.lng
-                })
-
-                var center = [+place.geometry.location.lng(), +place.geometry.location.lat()];
-                var from = turf.point(center);
-                points.forEach(point => {
-                    var to = turf.point([+point.lng, +point.lat]);
-                    var options = { units: 'miles' };
-                    var distance = turf.distance(from, to, options);
-                    point.distance = distance
-                })
-
-                const number = +document.querySelector('input[name="results"]:checked').value
-                console.log('number@@@@', number);
-                const closest = points.sort((a, b) => {
-                    return a.distance - b.distance
-                }).slice(0, number)
-
-                const infoContent = closest.map(row => {
-                    text = `
-                    <div class="item" data-address="${row['Address']}, ${row['City']}, ${row['zip']}">
-                        ${row['Address']}, 
-                        ${row['City']}, 
-                        ${row['Panel Location']}
-                    </div>
-                    `
-                    return text;
-                })
-
-                info.style.display = 'block'
-                pannel.style.display = 'block';
-                info.innerHTML = `
-                    <div>
-                        <button class="removeAddresses">Close</button>
-                    </div> 
-                    ${infoContent.join("")}
-                `;
-
-                var bounds = new google.maps.LatLngBounds();
-                closest
-                    .map(pin => {
-                        addMarker(pin)
-                        bounds.extend({ lng: +pin.lng, lat: +pin.lat });
-                    })
-                map.fitBounds(bounds);
-            });
-
-        }
-        */
 
     </script>
 
