@@ -55,7 +55,7 @@
     <div class="main">
         <div class="container">
             <input id="searchTextField" type="text" size="25">
-            <div id="userLocation" class="location"></div>
+            <!-- <div id="userLocation" class="location"></div> -->
         </div>
         <div id="map" style="width: 100%; height: 500px;"></div>
     </div>
@@ -64,7 +64,7 @@
 
     <script type="text/javascript">
         let mainData = []
-        const userLocation = document.getElementById("userLocation");
+        // const userLocation = document.getElementById("userLocation");
 
         function initMap() {
 
@@ -210,9 +210,9 @@
 
         }
 
-        userLocation.addEventListener("click", () => {
-            getUserposition()
-        })
+        // userLocation.addEventListener("click", () => {
+        //     getUserposition()
+        // })
 
         function getUserposition() {
             if (navigator.geolocation) {
