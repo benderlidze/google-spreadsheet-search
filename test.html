@@ -17,82 +17,222 @@
         margin: 0px;
     }
 
-    div#content {
-        width: 100%;
-        height: 100%;
-    }
-
-
-
     #searchTextField {
-        position: absolute;
-        top: 110px;
         font-size: 1.1em;
-        z-index: 1000;
-        left: 10px;
-        padding: 5px;
+        padding: 10px;
+        margin: 10px
     }
 
     .addr {
         margin: 10px 0px;
     }
 
-    @media only screen and (min-device-width: 1300px) {
-        .resetMap {
-            left: 180px;
-        }
+    .main {
+        background-color: rgb(211, 211, 211);
+    }
+
+    .location {
+        display: block;
+        background-image: url(https://upload.wikimedia.org/wikipedia/commons/f/f8/Ic_my_location_48px.svg);
+        background-position: center;
+        background-repeat: no-repeat;
+        width: 42px;
+        height: 42px;
+        border: 1px solid gray;
+        cursor: pointer;
+    }
+
+    .container {
+        display: flex;
+        align-items: center;
+        align-content: center;
     }
 </style>
 
 <body>
-    <div id="map" style="width: 100%; height: 100%;"></div>
-    <input id="searchTextField" type="text" size="25">
+
+
+    <div class="main">
+        <div class="container">
+            <input id="searchTextField" type="text" size="25">
+            <div id="userLocation" class="location"></div>
+        </div>
+        <div id="map" style="width: 100%; height: 500px;"></div>
+    </div>
+
 
 
     <script type="text/javascript">
+        let mainData = []
+        const userLocation = document.getElementById("userLocation");
 
-        const locations = [];
-        async function initMap() {
-            const map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 3,
-                center: { lat: -28.024, lng: 140.887 },
+        function initMap() {
+
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 5,
+                center: { lat: 63.39201245135161, lng: 17.98367431282504 },
+                mapTypeControl: false,
+                streetViewControl: false,
             });
             const infoWindow = new google.maps.InfoWindow({
                 content: "",
-                disableAutoPan: true,
             });
-            // Create an array of alphabetical characters used to label the markers.
-            const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            // Add some markers to the map.
 
-            await d3.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTHAm_8RBWo_DTpjYUEhQGSY_HTl6EOdI9sp2ZOB8yjTAwbGlmCSrpM_QHdmVzdF1tx_enZ0kdixqaf/pub?output=csv")
-                .then(i => {
-                    console.log('i', i);
-                    locations.push(...i)
+            d3.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTHAm_8RBWo_DTpjYUEhQGSY_HTl6EOdI9sp2ZOB8yjTAwbGlmCSrpM_QHdmVzdF1tx_enZ0kdixqaf/pub?output=csv")
+                .then(json => {
+
+
+                    //reformat duplicaed coordinates
+                    const duplicates = []
+                    mainData = json.map((i, key) => {
+                        // console.log('i', key, "|", i.lat, i.lng);
+                        if (duplicates.includes(+i.lat)) {
+                            i.lat = +i.lat + 0.00001 * randomIntFromInterval(1, 9)
+                            i.lng = +i.lng + 0.00001 * randomIntFromInterval(1, 9)
+                            // console.log('here', i.lat);
+                        }
+                        i.lat = +i.lat
+                        i.lng = +i.lng
+                        duplicates.push(+i.lat)
+                        return i
+                    })
+
+                    console.log('mainData', mainData);
+
+                    const markers = mainData.map((data, i) => {
+
+                        const text = `
+                            <h3>${data.Name}</h3>
+                            <div class="addr">${data.Town}, ${data.Address}</div>
+                            <div class="phone">
+                                <a href="tel:${data.Phone}" tabindex="0">${data.Phone}</a>
+                            </div>
+                        `
+                        var icon = {
+                            path: `M13.04,41.77c-0.11-1.29-0.35-3.2-0.99-5.42c-0.91-3.17-4.74-9.54-5.49-10.79c-3.64-6.1-5.46-9.21-5.45-12.07
+                                c0.03-4.57,2.77-7.72,3.21-8.22c0.52-0.58,4.12-4.47,9.8-4.17c4.73,0.24,7.67,3.23,8.45,4.07c0.47,0.51,3.22,3.61,3.31,8.11
+                                c0.06,3.01-1.89,6.26-5.78,12.77c-0.18,0.3-4.15,6.95-5.1,10.26c-0.64,2.24-0.89,4.17-1,5.48C13.68,41.78,13.36,41.78,13.04,41.77z
+                                `,
+                            fillColor: '#0084ff',
+                            fillOpacity: 1,
+                            strokeColor: '#ffffff',
+                            strokeWeight: 1,
+                            anchor: new google.maps.Point(14, 43),
+                            labelOrigin: new google.maps.Point(13.5, 15)
+                        }
+
+                        var marker = new google.maps.Marker({
+                            position: { lat: +data.lat, lng: +data.lng },
+                            map: map,
+                            draggable: false,
+                            icon: icon
+                        });
+
+
+                        marker.addListener("click", () => {
+                            infoWindow.setContent(text);
+                            infoWindow.open(map, marker);
+                            //map.setCenter({ lat: +data.lat, lng: +data.lng })
+                        });
+                        return marker;
+                    });
+
+                    var wdmRender = {
+                        render: function ({ count, position }, stats) {
+
+                            const color = '#0084ff';
+                            const svg = window.btoa(`
+                                <svg fill="${color}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+                                <circle cx="120" cy="120" opacity="1" r="70" />
+                                <circle cx="120" cy="120" opacity=".5" r="90" />
+                                <circle cx="120" cy="120" opacity=".3" r="110" />
+                                <circle cx="120" cy="120" opacity="0" r="230" />
+                                </svg>`);
+
+                            return new google.maps.Marker({
+                                position,
+                                icon: {
+                                    url: `data:image/svg+xml;base64,${svg}`,
+                                    scaledSize: new google.maps.Size(45, 45),
+                                },
+                                label: {
+                                    text: String(count),
+                                    color: "rgba(255,255,255,0.9)",
+                                    fontSize: "12px",
+                                },
+                                zIndex: -2,
+                            });
+
+                        }
+                    };
+                    const markerCluster = new markerClusterer.MarkerClusterer({
+                        map: map,
+                        markers: markers,
+                        renderer: wdmRender,
+                        algorithm: new markerClusterer.SuperClusterAlgorithm({
+                            radius: 150,
+
+                        })
+                    });
+
+                    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function (position) {
+                            var pos = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            };
+                            var userMarker = new google.maps.Marker({ position: pos, map: map, title: 'userMarker', zIndex: 99999999, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 6, fillColor: "#3399ff", fillOpacity: 1, strokeWeight: 0 }, });
+                            map.setCenter(pos);
+                            
+                        });
+                    }
+
                 })
 
-            const markers = locations.map((data, i) => {
-                const label = labels[i % labels.length];
-                const marker = new google.maps.Marker({
-                    position: { lat: +data.lat, lng: +data.lng },
-                    label,
+            const input = document.getElementById("searchTextField")
+            const autocomplete = new google.maps.places.Autocomplete(input);
+            google.maps.event.addListener(autocomplete, 'place_changed', function (e) {
+                var place = autocomplete.getPlace();
+                const loc = place.geometry.location;
+                map.setCenter(place.geometry.location);
+                const image =
+                    "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
+                searchMarker = new google.maps.Marker({
+                    position: loc,
+                    map,
+                    // icon: image,
                 });
-
-                // markers can only be keyboard focusable when they have click listeners
-                // open info window when marker is clicked
-                marker.addListener("click", () => {
-                    infoWindow.setContent(label);
-                    infoWindow.open(map, marker);
-                });
-                return marker;
+                const points = mainData.filter(point => {
+                    return point.lat && point.lng
+                })
+                var center = [+place.geometry.location.lng(), +place.geometry.location.lat()];
             });
 
-            // Add a marker clusterer to manage the markers.
-            const markerCluster = new markerClusterer.MarkerClusterer({ map, markers });
+        }
+
+        userLocation.addEventListener("click", () => {
+            getUserposition()
+        })
+
+        function getUserposition() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    const lat = position.coords.latitude; // ADDED THIS
+                    const lng = position.coords.longitude; // ADDED THIS
+                    map.setCenter({ lat, lng });
+                    map.setZoom(10);
+                }, function () {
+                    handleLocationError(true, infoWindow, map.getCenter());
+                });
+            }
         }
 
         window.initMap = initMap;
 
+
+        function randomIntFromInterval(min, max) { // min and max included 
+            return Math.floor(Math.random() * (max - min + 1) + min)
+        }
 
     </script>
 
