@@ -20,9 +20,17 @@
     }
 
     #searchTextField {
-        font-size: 1.1em;
-        padding: 10px;
-        margin: 10px
+        width: 50%;
+        border: none;
+        background-color: #f1f1f1;
+        padding: 15px;
+        font-size: 16px;
+        font-weight: 300;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        margin: 10px;
+        background-color: white;
+        border: #ccc 1px solid !important;
+        outline: none;
     }
 
     .addr {
@@ -30,7 +38,11 @@
     }
 
     .main {
-        background-color: rgb(211, 211, 211);
+        background-color: #f4f4f4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
     }
 
     .location {
@@ -45,9 +57,10 @@
     }
 
     .container {
+        width: 100%;
         display: flex;
+        flex-direction: column;
         align-items: center;
-        align-content: center;
     }
 </style>
 
@@ -59,7 +72,7 @@
             <input id="searchTextField" type="text" size="25">
             <!-- <div id="userLocation" class="location"></div> -->
         </div>
-        <div id="map" style="width: 100%; height: 500px;"></div>
+        <div id="map" style="width: 100%; height: 600px;"></div>
     </div>
 
 
