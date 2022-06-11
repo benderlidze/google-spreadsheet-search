@@ -78,6 +78,16 @@
                 content: "",
             });
 
+            const color = '#0084ff';
+            const svg = window.btoa(`
+                                <svg fill="${color}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+                                <circle cx="120" cy="120" opacity="1" r="70" />
+                                <circle cx="120" cy="120" opacity=".5" r="90" />
+                                <circle cx="120" cy="120" opacity=".3" r="110" />
+                                <circle cx="120" cy="120" opacity="0" r="230" />
+                                </svg>`);
+            const img = `data:image/svg+xml;base64,${svg}`
+
             d3.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTHAm_8RBWo_DTpjYUEhQGSY_HTl6EOdI9sp2ZOB8yjTAwbGlmCSrpM_QHdmVzdF1tx_enZ0kdixqaf/pub?output=csv")
                 .then(json => {
 
@@ -143,19 +153,11 @@
                     var wdmRender = {
                         render: function ({ count, position }, stats) {
 
-                            const color = '#0084ff';
-                            const svg = window.btoa(`
-                                <svg fill="${color}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
-                                <circle cx="120" cy="120" opacity="1" r="70" />
-                                <circle cx="120" cy="120" opacity=".5" r="90" />
-                                <circle cx="120" cy="120" opacity=".3" r="110" />
-                                <circle cx="120" cy="120" opacity="0" r="230" />
-                                </svg>`);
 
                             return new google.maps.Marker({
                                 position,
                                 icon: {
-                                    url: `data:image/svg+xml;base64,${svg}`,
+                                    url: img,
                                     scaledSize: new google.maps.Size(45, 45),
                                 },
                                 label: {

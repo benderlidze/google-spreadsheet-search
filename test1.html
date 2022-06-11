@@ -66,16 +66,122 @@
 
     <script type="text/javascript">
         let mainData = []
-        // const userLocation = document.getElementById("userLocation");
 
         function initMap() {
 
-            map = new google.maps.Map(document.getElementById("map"), {
+            const map = new google.maps.Map(document.getElementById("map"), {
                 zoom: 5,
                 center: { lat: 63.39201245135161, lng: 17.98367431282504 },
-                mapTypeControl: false,
+                // minZoom: 3, 
+                // maxZoom: 15,
+                disableDefaultUI: false,
+                draggable: true,
+                fullscreenControl: true,
                 streetViewControl: false,
+                navigationControl: false,
+                disableDoubleClickZoom: false,
+                mapTypeControl: false,
+                scrollwheel: false,
+                scaleControl: true, styles: [
+                    {
+                        "featureType": "administrative",
+                        "elementType": "geometry",
+                        "stylers": [
+                            {
+                                "visibility": "off"
+                            }
+                        ]
+                    },
+                    {
+                        "featureType": "administrative.land_parcel",
+                        "stylers": [
+                            {
+                                "visibility": "off"
+                            }
+                        ]
+                    },
+                    {
+                        "featureType": "administrative.neighborhood",
+                        "stylers": [
+                            {
+                                "visibility": "off"
+                            }
+                        ]
+                    },
+                    {
+                        "featureType": "landscape.man_made",
+                        "stylers": [
+                            {
+                                "visibility": "simplified"
+                            }
+                        ]
+                    },
+                    {
+                        "featureType": "landscape.natural",
+                        "stylers": [
+                            {
+                                "lightness": 60
+                            },
+                            {
+                                "visibility": "simplified"
+                            }
+                        ]
+                    },
+                    {
+                        "featureType": "poi",
+                        "stylers": [
+                            {
+                                "visibility": "off"
+                            }
+                        ]
+                    },
+                    {
+                        "featureType": "road",
+                        "stylers": [
+                            {
+                                "visibility": "simplified"
+                            }
+                        ]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "labels",
+                        "stylers": [
+                            {
+                                "visibility": "off"
+                            }
+                        ]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "labels.icon",
+                        "stylers": [
+                            {
+                                "visibility": "off"
+                            }
+                        ]
+                    },
+                    {
+                        "featureType": "transit",
+                        "stylers": [
+                            {
+                                "visibility": "off"
+                            }
+                        ]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "labels.text",
+                        "stylers": [
+                            {
+                                "visibility": "off"
+                            }
+                        ]
+                    }
+                ]
             });
+
+
             const infoWindow = new google.maps.InfoWindow({
                 content: "",
             });
