@@ -323,6 +323,7 @@
                 var place = autocomplete.getPlace();
                 const loc = place.geometry.location;
                 map.setCenter(place.geometry.location);
+                map.setZoom(7);
                 const image =
                     "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
                 searchMarker = new google.maps.Marker({
