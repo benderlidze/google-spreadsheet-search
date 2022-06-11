@@ -103,7 +103,10 @@
 
                         const text = `
                             <h3>${data.Name}</h3>
-                            <div class="addr">${data.Town}, ${data.Address}</div>
+                            <div class="addr"> 
+                                ${data.Address}<br>
+                                ${data.ZIP} ${data.Town}
+                            </div>
                             <div class="phone">
                                 <a href="tel:${data.Phone}" tabindex="0">${data.Phone}</a>
                             </div>
