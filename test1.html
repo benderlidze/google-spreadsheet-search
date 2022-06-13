@@ -263,15 +263,6 @@
                         return marker;
                     });
 
-                    const svg = window.btoa(`
-                                <svg fill="#0084ff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
-                                <circle cx="120" cy="120" opacity="1" r="70" />
-                                <circle cx="120" cy="120" opacity=".5" r="90" />
-                                <circle cx="120" cy="120" opacity=".3" r="110" />
-                                <circle cx="120" cy="120" opacity="0" r="230" />
-                                </svg>`);
-                    console.log('svg', svg);
-
                     const image = 'svgviewer-png-output.png'
 
                     var clusterStyles = [
@@ -319,6 +310,12 @@
 
             const input = document.getElementById("searchTextField")
             const autocomplete = new google.maps.places.Autocomplete(input);
+
+            autocomplete.setComponentRestrictions({
+                //country: ["se","no"],
+                country: ["se"],
+            });
+
             google.maps.event.addListener(autocomplete, 'place_changed', function (e) {
                 var place = autocomplete.getPlace();
                 const loc = place.geometry.location;
